@@ -26,11 +26,36 @@ export async function createBooking(
     const res = await fetch("/api/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(request),
     });
     const data = (await res.json()) as BookingResponse;
     if (!res.ok) {
       return { ok: false, message: data.message ?? "Booking failed" };
+    }
+    return data;
+  } catch (e) {
+    return {
+      ok: false,
+      message: e instanceof Error ? e.message : "Network error",
+    };
+  }
+}
+
+/** Create booking with pending_payment and get Vudy payment URL. Redirect user to requestUrl. */
+export async function createPaymentRequest(
+  request: BookingRequest
+): Promise<BookingResponse & { requestUrl?: string }> {
+  try {
+    const res = await fetch("/api/bookings/create-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(request),
+    });
+    const data = (await res.json()) as BookingResponse & { requestUrl?: string };
+    if (!res.ok) {
+      return { ok: false, message: data.message ?? "Payment setup failed" };
     }
     return data;
   } catch (e) {

@@ -152,6 +152,14 @@ export function ItineraryMap({
           mapInstance.fitBounds(bounds, { padding: 60, maxZoom: 14 });
         }
 
+        const STOP_TYPE_LABELS: Record<string, string> = {
+          hotel: "Hotel",
+          restaurant: "Restaurant",
+          activity: "Activity",
+          attraction: "Attraction",
+          transport: "Transport",
+          guide: "Guide",
+        };
         let stopIndex = 0;
         itinerary.days.forEach((day) => {
           day.stops.forEach((stop) => {
@@ -185,24 +193,31 @@ export function ItineraryMap({
             });
             el.addEventListener("click", () => onStopSelect?.(stop));
 
-            const priceStr =
-              stop.price != null ? `~$${stop.price}` : "";
-            const durationStr =
-              stop.duration != null ? `${stop.duration} min` : "";
-            const metaParts = [priceStr, durationStr].filter(Boolean);
+            const typeLabel = STOP_TYPE_LABELS[stop.type] ?? stop.type;
+            const parts: string[] = [
+              `<div class="dt-popup-title">${escapeHtml(stop.name)}</div>`,
+              `<div class="dt-popup-type">Day ${day.dayIndex} · ${escapeHtml(typeLabel)}</div>`,
+            ];
+            if (stop.price != null || stop.duration != null) {
+              const meta: string[] = [];
+              if (stop.price != null) meta.push(`~$${stop.price}`);
+              if (stop.duration != null) meta.push(`${stop.duration} min`);
+              parts.push(`<div class="dt-popup-meta">${meta.join(" · ")}</div>`);
+            }
+            if (stop.startTime != null || stop.endTime != null) {
+              const timeStr = [stop.startTime, stop.endTime].filter(Boolean).join(" – ");
+              parts.push(`<div class="dt-popup-time">${escapeHtml(timeStr)}</div>`);
+            }
+            if (stop.description) {
+              parts.push(`<div class="dt-popup-desc">${escapeHtml(stop.description)}</div>`);
+            }
 
             const popup = new mapbox.Popup({
               offset: 25,
               closeButton: true,
               closeOnClick: false,
               className: "dt-itinerary-popup",
-            }).setHTML(
-              `<div class="dt-popup-title">${escapeHtml(stop.name)}</div>` +
-                `<div class="dt-popup-type">${escapeHtml(stop.type)}</div>` +
-                (metaParts.length
-                  ? `<div class="dt-popup-meta">${metaParts.join(" · ")}</div>`
-                  : "")
-            );
+            }).setHTML(parts.join(""));
 
             new mapbox.Marker({ element: el })
               .setLngLat([stop.lng, stop.lat])

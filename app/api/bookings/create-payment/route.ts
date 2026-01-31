@@ -1,35 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-  const { data: bookings, error } = await supabase
-    .from("bookings")
-    .select(
-      `
-      id,
-      itinerary_id,
-      guest_email,
-      guest_name,
-      status,
-      created_at,
-      itineraries ( days, summary )
-    `
-    )
-    .eq("user_id", user.id)
-    .in("status", ["confirmed", "in_progress", "completed"])
-    .order("created_at", { ascending: false });
-  if (error) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
-  }
-  return NextResponse.json({ bookings: bookings ?? [] });
-}
+const VUDY_BASE = process.env.VUDY_API_BASE_URL ?? "https://api.vudy.app";
+const VUDY_CREATE_PATH = "/channel/vudy/request/create";
 
 export async function POST(request: Request) {
   try {
@@ -38,6 +11,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { ok: false, message: "Missing required fields" },
         { status: 400 }
+      );
+    }
+    const apiKey = process.env.VUDY_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { ok: false, message: "Payment is not configured" },
+        { status: 503 }
       );
     }
     const supabase = await createClient();
@@ -68,6 +48,14 @@ export async function POST(request: Request) {
     const selectedStopIds = Array.isArray(body.selectedStopIds)
       ? (body.selectedStopIds as string[])
       : days.flatMap((d) => d.stops.map((s) => s.placeId));
+    const summary = (itineraryRow.summary ?? { totalEstimatedCost: 0 }) as { totalEstimatedCost?: number };
+    const amount = Number(summary.totalEstimatedCost) || 0;
+    if (amount <= 0) {
+      return NextResponse.json(
+        { ok: false, message: "Invalid itinerary total cost" },
+        { status: 400 }
+      );
+    }
 
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
@@ -76,7 +64,7 @@ export async function POST(request: Request) {
         user_id: user.id,
         guest_email: body.guestEmail,
         guest_name: body.guestName,
-        status: "confirmed",
+        status: "pending_payment",
       })
       .select("id")
       .single();
@@ -107,14 +95,56 @@ export async function POST(request: Request) {
       }
     }
 
+    const vudyPayload = {
+      amount,
+      channelParams: {
+        customId: booking.id,
+        note: `DreamedTrip booking ${booking.id}`,
+        currencyToken: "USD",
+      },
+    };
+    const vudyRes = await fetch(`${VUDY_BASE}${VUDY_CREATE_PATH}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+      },
+      body: JSON.stringify(vudyPayload),
+    });
+    const vudyData = (await vudyRes.json()) as {
+      success?: boolean;
+      data?: { id?: string; requestId?: string; url?: string; requestUrl?: string };
+      error?: { message?: string };
+    };
+    if (!vudyRes.ok) {
+      return NextResponse.json(
+        { ok: false, message: vudyData?.error?.message ?? "Payment request failed" },
+        { status: 502 }
+      );
+    }
+    const requestId = vudyData?.data?.id ?? vudyData?.data?.requestId;
+    const requestUrl = vudyData?.data?.url ?? vudyData?.data?.requestUrl;
+    if (requestId) {
+      await supabase
+        .from("bookings")
+        .update({ vudy_request_id: requestId })
+        .eq("id", booking.id);
+    }
+    if (!requestUrl) {
+      return NextResponse.json(
+        { ok: false, message: "Payment URL not returned" },
+        { status: 502 }
+      );
+    }
     return NextResponse.json({
       ok: true,
       bookingId: booking.id,
-      message: "Booking received. Confirmation will be sent to your email.",
+      requestUrl,
+      requestId: requestId ?? undefined,
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
-      { ok: false, message: "Bad request" },
+      { ok: false, message: e instanceof Error ? e.message : "Bad request" },
       { status: 400 }
     );
   }

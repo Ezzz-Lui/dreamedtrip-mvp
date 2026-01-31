@@ -48,6 +48,30 @@ export async function getItineraryFromProfile(
   return mock;
 }
 
+/**
+ * Persist itinerary to DB when user is logged in. Returns the saved itinerary with DB id.
+ */
+export async function saveItinerary(itinerary: Itinerary): Promise<Itinerary | null> {
+  try {
+    const res = await apiFetch<{ ok: boolean; itineraryId: string; itinerary?: Itinerary }>(
+      "/itinerary",
+      {
+        method: "POST",
+        body: JSON.stringify({ itinerary }),
+      }
+    );
+    if (res?.ok && res?.itinerary) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(ITINERARY_STORAGE_KEY, JSON.stringify(res.itinerary));
+      }
+      return res.itinerary;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getLatestItinerary(): Promise<Itinerary | null> {
   try {
     const res = await apiFetch<{ itinerary: Itinerary }>("/itinerary/latest", {
@@ -78,4 +102,10 @@ export function getItineraryFromStorage(): Itinerary | null {
   } catch {
     return null;
   }
+}
+
+/** Persist edited itinerary to localStorage so map and list stay in sync. */
+export function saveItineraryToStorage(itinerary: Itinerary): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(ITINERARY_STORAGE_KEY, JSON.stringify(itinerary));
 }

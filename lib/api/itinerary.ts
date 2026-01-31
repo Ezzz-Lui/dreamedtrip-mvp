@@ -1,0 +1,66 @@
+/**
+ * Itinerary API client. POST with profile to get recommendation; mock used when backend unavailable.
+ */
+
+import type { TravelerProfile } from "@/lib/types/traveler";
+import type { Itinerary } from "@/lib/types/itinerary";
+import { buildMockItinerary } from "@/lib/itinerary-mock";
+import { apiFetch } from "./client";
+
+const ITINERARY_STORAGE_KEY = "dreamedtrip_itinerary";
+
+export async function getItineraryFromProfile(
+  profile: TravelerProfile
+): Promise<Itinerary> {
+  try {
+    const res = await apiFetch<{ itinerary: Itinerary }>("/itinerary", {
+      method: "POST",
+      body: JSON.stringify(profile),
+    });
+    if (res.itinerary) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(ITINERARY_STORAGE_KEY, JSON.stringify(res.itinerary));
+      }
+      return res.itinerary;
+    }
+  } catch {
+    // Fallback to mock
+  }
+  const mock = buildMockItinerary(profile);
+  if (typeof window !== "undefined") {
+    localStorage.setItem(ITINERARY_STORAGE_KEY, JSON.stringify(mock));
+  }
+  return mock;
+}
+
+export async function getLatestItinerary(): Promise<Itinerary | null> {
+  try {
+    const res = await apiFetch<{ itinerary: Itinerary }>("/itinerary/latest", {
+      method: "GET",
+    });
+    return res.itinerary ?? null;
+  } catch {
+    if (typeof window !== "undefined") {
+      const raw = localStorage.getItem(ITINERARY_STORAGE_KEY);
+      if (raw) {
+        try {
+          return JSON.parse(raw) as Itinerary;
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+export function getItineraryFromStorage(): Itinerary | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(ITINERARY_STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as Itinerary;
+  } catch {
+    return null;
+  }
+}

@@ -18,25 +18,28 @@ export function LoadingGenie({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-12">
-      <div className="relative">
+    <div className="flex flex-col items-center justify-center gap-6 py-16">
+      <div className="relative p-8 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20">
         <GenieMascot className={sizeClasses[size]} />
         {/* Magic sparkles around genie */}
         <div className="absolute inset-0 animate-ping-slow">
-          <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-400 rounded-full animate-twinkle" />
-          <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-purple-400 rounded-full animate-twinkle" style={{ animationDelay: "0.3s" }} />
-          <div className="absolute bottom-4 left-4 w-2 h-2 bg-cyan-400 rounded-full animate-twinkle" style={{ animationDelay: "0.6s" }} />
-          <div className="absolute bottom-2 right-0 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-twinkle" style={{ animationDelay: "0.9s" }} />
+          <div className="absolute top-4 left-4 w-3 h-3 bg-yellow-400 rounded-full animate-twinkle shadow-lg" />
+          <div className="absolute top-8 right-6 w-2 h-2 bg-purple-400 rounded-full animate-twinkle shadow-lg" style={{ animationDelay: "0.3s" }} />
+          <div className="absolute bottom-8 left-6 w-3 h-3 bg-cyan-400 rounded-full animate-twinkle shadow-lg" style={{ animationDelay: "0.6s" }} />
+          <div className="absolute bottom-4 right-4 w-2 h-2 bg-yellow-300 rounded-full animate-twinkle shadow-lg" style={{ animationDelay: "0.9s" }} />
         </div>
       </div>
       
-      <div className="text-center space-y-2">
-        <p className="text-lg font-medium animate-pulse">{message}</p>
-        <div className="flex gap-1 justify-center">
-          <span className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-          <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-          <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+      <div className="text-center space-y-3">
+        <p className="text-xl font-semibold animate-pulse">{message}</p>
+        <div className="flex gap-1.5 justify-center">
+          <span className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" />
+          <span className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
+          <span className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
         </div>
+        <p className="text-sm text-muted-foreground">
+          Our genie is working its magic ✨
+        </p>
       </div>
 
       <style jsx>{`

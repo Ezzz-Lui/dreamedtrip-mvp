@@ -3,8 +3,8 @@
 // Step 1: Review booking - Checklist
 export function ReviewIllustration() {
   return (
-    <div className="flex justify-center mb-6">
-      <svg viewBox="0 0 120 120" className="w-28 h-28">
+    <div className="flex justify-center mb-8">
+      <svg viewBox="0 0 120 120" className="w-36 h-36 sm:w-40 sm:h-40">
         {/* Clipboard */}
         <rect x="30" y="20" width="60" height="80" rx="4" fill="currentColor" className="text-gray-200 dark:text-gray-700" />
         <rect x="35" y="25" width="50" height="70" rx="2" fill="currentColor" className="text-white dark:text-gray-800" />
@@ -52,8 +52,8 @@ export function ReviewIllustration() {
 // Step 2: Enter details - Form with pen
 export function DetailsIllustration() {
   return (
-    <div className="flex justify-center mb-6">
-      <svg viewBox="0 0 120 120" className="w-28 h-28">
+    <div className="flex justify-center mb-8">
+      <svg viewBox="0 0 120 120" className="w-36 h-36 sm:w-40 sm:h-40">
         {/* Paper/Form */}
         <rect x="25" y="30" width="70" height="60" rx="4" fill="currentColor" className="text-white dark:text-gray-800" stroke="currentColor" strokeWidth="2" className="text-gray-300 dark:text-gray-600" />
         
@@ -91,8 +91,8 @@ export function DetailsIllustration() {
 // Step 3: Success - Checkmark with confetti
 export function SuccessIllustration() {
   return (
-    <div className="flex justify-center mb-6">
-      <svg viewBox="0 0 120 120" className="w-32 h-32">
+    <div className="flex justify-center mb-8">
+      <svg viewBox="0 0 120 120" className="w-40 h-40 sm:w-48 sm:h-48">
         {/* Circle background */}
         <circle cx="60" cy="60" r="35" fill="currentColor" className="text-green-500 animate-scale-in" />
         <circle cx="60" cy="60" r="30" fill="currentColor" className="text-green-400 animate-scale-in" style={{ animationDelay: "0.1s" }} />

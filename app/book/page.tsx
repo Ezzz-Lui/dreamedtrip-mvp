@@ -135,7 +135,12 @@ function BookPageContent() {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="mx-auto max-w-xl space-y-6 py-12">
-          <SuccessIllustration />
+          <div>
+            <SuccessIllustration />
+            <p className="text-center text-sm text-muted-foreground -mt-4 mb-6">
+              Your booking is confirmed!
+            </p>
+          </div>
           <div className="flex flex-col items-center text-center">
             <h1 className="text-3xl font-bold">Booking Confirmed!</h1>
             <p className="text-muted-foreground mt-3 text-lg">
@@ -202,7 +207,12 @@ function BookPageContent() {
 
         {step === 1 && (
           <Card>
-            <ReviewIllustration />
+            <div className="pt-6">
+              <ReviewIllustration />
+              <p className="text-center text-sm text-muted-foreground -mt-4 mb-4">
+                Review your trip details
+              </p>
+            </div>
             <CardHeader>
               <CardTitle className="text-base">Itinerary summary</CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -245,7 +255,12 @@ function BookPageContent() {
 
         {step === 2 && (
           <Card>
-            <DetailsIllustration />
+            <div className="pt-6">
+              <DetailsIllustration />
+              <p className="text-center text-sm text-muted-foreground -mt-4 mb-4">
+                Enter your contact information
+              </p>
+            </div>
             <CardHeader>
               <CardTitle className="text-base">Your details</CardTitle>
             </CardHeader>

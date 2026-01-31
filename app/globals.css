@@ -115,6 +115,34 @@
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
+/* Mapbox map: popups and controls aligned with app design */
+.mapboxgl-popup-content {
+  @apply rounded-xl border border-border bg-card px-4 py-3 shadow-lg;
+  min-width: 180px;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+.mapboxgl-popup-content .dt-popup-title {
+  @apply font-semibold text-foreground text-sm leading-tight;
+}
+.mapboxgl-popup-content .dt-popup-type {
+  @apply text-muted-foreground text-xs uppercase tracking-wide mt-0.5;
+}
+.mapboxgl-popup-content .dt-popup-meta {
+  @apply text-muted-foreground text-xs mt-2 flex gap-3;
+}
+.mapboxgl-popup-close-button {
+  @apply text-muted-foreground hover:text-foreground text-lg leading-none p-1.5;
+}
+.mapboxgl-ctrl-group {
+  @apply rounded-lg border border-border bg-card shadow-sm overflow-hidden;
+}
+.mapboxgl-ctrl-group button {
+  @apply w-8 h-8;
+}
+.mapboxgl-ctrl-group button + button {
+  @apply border-t border-border;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

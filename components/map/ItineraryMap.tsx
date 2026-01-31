@@ -6,10 +6,26 @@ import { cn } from "@/lib/utils";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
-// Mapbox GL expects a concrete color (hex/rgb), not CSS variables
-const ROUTE_COLOR = "#2563eb";
-const MARKER_COLOR = "#2563eb";
-const MARKER_COLOR_ACTIVE = "#1d4ed8";
+// Mapbox GL expects concrete colors (hex). Travel-oriented palette: teal/emerald
+const ROUTE_COLOR = "#0d9488";
+const ROUTE_GLOW_COLOR = "rgba(13, 148, 136, 0.25)";
+const MARKER_BG = "#0d9488";
+const MARKER_BG_ACTIVE = "#0f766e";
+const MARKER_TEXT = "#ffffff";
+
+function escapeHtml(text: string): string {
+  const div = typeof document !== "undefined" ? document.createElement("div") : null;
+  if (div) {
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 export interface ItineraryMapProps {
   itinerary: Itinerary;
@@ -81,15 +97,13 @@ export function ItineraryMap({
 
       const map = new mapbox.Map({
         container,
-        style: "mapbox://styles/mapbox/light-v11",
+        style: "mapbox://styles/mapbox/outdoors-v12",
         center,
         zoom: 12,
+        attributionControl: false,
       });
-
-      map.addControl(
-        new mapbox.NavigationControl(),
-        "top-right"
-      );
+      map.addControl(new mapbox.NavigationControl({ showCompass: true }), "top-right");
+      map.addControl(new mapbox.ScaleControl({ unit: "metric" }), "bottom-left");
 
       map.on("load", () => {
         const mapInstance = map;
@@ -106,6 +120,19 @@ export function ItineraryMap({
           },
         });
 
+        // Glow layer: wider, semi-transparent for depth
+        mapInstance.addLayer({
+          id: "route-glow",
+          type: "line",
+          source: "route",
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": ROUTE_GLOW_COLOR,
+            "line-width": 12,
+          },
+        });
+
+        // Main route line
         mapInstance.addLayer({
           id: "route",
           type: "line",
@@ -116,7 +143,7 @@ export function ItineraryMap({
           },
           paint: {
             "line-color": ROUTE_COLOR,
-            "line-width": 4,
+            "line-width": 5,
           },
         });
 
@@ -125,40 +152,59 @@ export function ItineraryMap({
           mapInstance.fitBounds(bounds, { padding: 60, maxZoom: 14 });
         }
 
+        let stopIndex = 0;
         itinerary.days.forEach((day) => {
-          day.stops.forEach((stop, i) => {
+          day.stops.forEach((stop) => {
+            stopIndex += 1;
+            const isActive = selectedStopId === stop.placeId;
             const el = document.createElement("div");
-            el.className = "map-marker";
-            el.style.width = "24px";
-            el.style.height = "24px";
-            el.style.borderRadius = "50%";
-            el.style.backgroundColor =
-              selectedStopId === stop.placeId ? MARKER_COLOR_ACTIVE : MARKER_COLOR;
-            el.style.border = "2px solid white";
-            el.style.cursor = "pointer";
-            el.style.boxShadow = "0 1px 3px rgba(0,0,0,0.3)";
+            el.className = "dt-map-marker";
+            el.setAttribute("aria-label", `Stop ${stopIndex}: ${stop.name}`);
+            el.style.cssText = `
+              width: 28px; height: 28px;
+              border-radius: 50%;
+              background: ${isActive ? MARKER_BG_ACTIVE : MARKER_BG};
+              border: 2px solid white;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+              cursor: pointer;
+              display: flex; align-items: center; justify-content: center;
+              font-size: 12px; font-weight: 600; color: ${MARKER_TEXT};
+              font-family: var(--font-geist-sans), system-ui, sans-serif;
+              transition: box-shadow 0.15s ease, filter 0.15s ease;
+            `;
+            el.textContent = String(stopIndex);
             el.title = stop.name;
 
+            el.addEventListener("mouseenter", () => {
+              el.style.boxShadow = "0 4px 14px rgba(0,0,0,0.3)";
+              el.style.filter = "brightness(1.1)";
+            });
+            el.addEventListener("mouseleave", () => {
+              el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+              el.style.filter = "none";
+            });
+            el.addEventListener("click", () => onStopSelect?.(stop));
+
+            const priceStr =
+              stop.price != null ? `~$${stop.price}` : "";
+            const durationStr =
+              stop.duration != null ? `${stop.duration} min` : "";
+            const metaParts = [priceStr, durationStr].filter(Boolean);
+
             const popup = new mapbox.Popup({
-              offset: 20,
+              offset: 25,
               closeButton: true,
               closeOnClick: false,
+              className: "dt-itinerary-popup",
             }).setHTML(
-              `<div class="p-2 min-w-[140px]">
-                <p class="font-semibold text-sm">${stop.name}</p>
-                <p class="text-xs text-muted-foreground">${stop.type}</p>
-                ${stop.price != null ? `<p class="text-xs mt-1">~$${stop.price}</p>` : ""}
-                ${stop.duration != null ? `<p class="text-xs">${stop.duration} min</p>` : ""}
-              </div>`
+              `<div class="dt-popup-title">${escapeHtml(stop.name)}</div>` +
+                `<div class="dt-popup-type">${escapeHtml(stop.type)}</div>` +
+                (metaParts.length
+                  ? `<div class="dt-popup-meta">${metaParts.join(" · ")}</div>`
+                  : "")
             );
 
-            el.addEventListener("click", () => {
-              onStopSelect?.(stop);
-            });
-
-            new mapbox.Marker({
-              element: el,
-            })
+            new mapbox.Marker({ element: el })
               .setLngLat([stop.lng, stop.lat])
               .setPopup(popup)
               .addTo(mapInstance);
@@ -202,7 +248,10 @@ export function ItineraryMap({
   return (
     <div
       ref={containerRef}
-      className={cn("w-full h-full min-h-[300px] rounded-lg overflow-hidden", className)}
+      className={cn(
+        "w-full h-full min-h-[300px] rounded-xl overflow-hidden border border-border shadow-md ring-1 ring-black/5",
+        className
+      )}
     />
   );
 }

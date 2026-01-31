@@ -13,6 +13,7 @@ import {
   buildBookingRequest,
   type BookingResponse,
 } from "@/lib/api/bookings";
+import { saveItinerary } from "@/lib/api/itinerary";
 import { bookingFormSchema, type BookingFormSchema } from "@/lib/schemas/booking";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,16 +65,24 @@ function BookPageContent() {
   });
 
   useEffect(() => {
-    const itineraryId = searchParams.get("itineraryId");
-    const stored = getItineraryFromStorage();
-    if (stored && (!itineraryId || stored.id === itineraryId)) {
+    async function load() {
+      const itineraryId = searchParams.get("itineraryId");
+      let stored = getItineraryFromStorage();
+      if (!stored) {
+        router.replace("/itinerary");
+        setLoading(false);
+        return;
+      }
+      // If itinerary was generated before login, save it to get a DB id (UUID) for booking
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(stored.id);
+      if (!isUuid) {
+        const saved = await saveItinerary(stored);
+        if (saved) stored = saved;
+      }
       setItinerary(stored);
-    } else if (stored) {
-      setItinerary(stored);
-    } else {
-      router.replace("/itinerary");
+      setLoading(false);
     }
-    setLoading(false);
+    load();
   }, [router, searchParams]);
 
   const onConfirmBooking = async (values: BookingFormSchema) => {
@@ -142,8 +151,11 @@ function BookPageContent() {
               </p>
             )}
           </div>
-          <div className="flex justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             <Button asChild>
+              <Link href="/dashboard">View my trips</Link>
+            </Button>
+            <Button variant="outline" asChild>
               <Link href="/">Back to home</Link>
             </Button>
             <Button variant="outline" asChild>

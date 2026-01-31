@@ -14,7 +14,8 @@ import {
   INTERESTS,
 } from "@/lib/types/traveler";
 import { saveProfile, getProfileFromStorage } from "@/lib/api/profile";
-import { getItineraryFromProfile } from "@/lib/api/itinerary";
+import { getItineraryFromProfile, saveItinerary } from "@/lib/api/itinerary";
+import { createClient } from "@/lib/supabase/client";
 import {
   Form,
   FormControl,
@@ -144,7 +145,12 @@ export default function PlanPage() {
     setIsSubmitting(true);
     try {
       await saveProfile(values);
-      await getItineraryFromProfile(values);
+      const itinerary = await getItineraryFromProfile(values);
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await saveItinerary(itinerary);
+      }
       router.push("/itinerary?from=plan");
     } catch {
       form.setError("root", { message: "Something went wrong. Try again." });

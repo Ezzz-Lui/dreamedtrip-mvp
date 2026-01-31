@@ -7,16 +7,13 @@ import type { Itinerary } from "@/lib/types/itinerary";
 import { getItineraryFromStorage } from "@/lib/api/itinerary";
 import { getLatestItinerary } from "@/lib/api/itinerary";
 import { ItineraryMap } from "@/components/map/ItineraryMap";
-import { ItineraryTimeline } from "@/components/itinerary/ItineraryTimeline";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingGenie } from "@/components/ui/loading-genie";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Calendar, DollarSign, ChevronUp, Map as MapIcon, List } from "lucide-react";
+import { MapPin, Calendar, DollarSign, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LoadingGenie } from "@/components/ui/loading-genie";
 
 const STOP_TYPE_LABELS: Record<string, string> = {
   hotel: "Hotel",
@@ -33,7 +30,6 @@ function ItineraryPageContent() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [loading, setLoading] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedStopId, setSelectedStopId] = useState<string | null>(null);
 
   useEffect(() => {
     const fromPlan = searchParams.get("from") === "plan";
@@ -54,8 +50,8 @@ function ItineraryPageContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-4">
-        <div className="mx-auto max-w-7xl">
-          <LoadingGenie message="Loading your itinerary..." size="lg" />
+        <div className="mx-auto max-w-6xl space-y-4">
+          <LoadingGenie message="Loading your itinerary..." />
         </div>
       </div>
     );
@@ -76,7 +72,7 @@ function ItineraryPageContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-6">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -104,99 +100,66 @@ function ItineraryPageContent() {
           </div>
         </div>
 
-        <Tabs defaultValue="map" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="map" className="gap-2">
-                <MapIcon className="size-4" />
-                Map View
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="gap-2">
-                <List className="size-4" />
-                Timeline
-              </TabsTrigger>
-            </TabsList>
-            
-            <Card className="hidden lg:block">
-              <CardContent className="flex items-center gap-4 p-3">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <div className="h-[400px] w-full overflow-hidden rounded-lg border">
+              <ItineraryMap itinerary={itinerary} />
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              To reserve transport, accommodation and activities with us, use
+              the paid tier.
+            </p>
+          </div>
+
+          <div className="hidden lg:block">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="size-4 text-muted-foreground" />
                   <span>{totalDays} day{totalDays !== 1 ? "s" : ""}</span>
                 </div>
-                <div className="h-4 w-px bg-border" />
                 <div className="flex items-center gap-2 text-sm">
                   <DollarSign className="size-4 text-muted-foreground" />
-                  <span>~${totalCost} total</span>
+                  <span>~${totalCost} estimated total</span>
                 </div>
               </CardContent>
             </Card>
+            <ScrollArea className="mt-4 h-[calc(100vh-320px)]">
+              <div className="space-y-4 pr-2">
+                {itinerary.days.map((day) => (
+                  <Card key={day.dayIndex}>
+                    <CardHeader className="py-3">
+                      <CardTitle className="text-sm">
+                        Day {day.dayIndex} · {day.date}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 pt-0">
+                      {day.stops.map((stop) => (
+                        <div
+                          key={stop.placeId}
+                          className="flex items-start gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                          <div>
+                            <p className="font-medium">{stop.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {STOP_TYPE_LABELS[stop.type] ?? stop.type}
+                              {stop.price != null && ` · ~$${stop.price}`}
+                              {stop.duration != null && ` · ${stop.duration} min`}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
-
-          <TabsContent value="map" className="mt-0">
-            <div className="grid gap-6 lg:grid-cols-4">
-              <div className="lg:col-span-3">
-                <div className="h-[500px] sm:h-[600px] w-full overflow-hidden rounded-lg border shadow-lg">
-                  <ItineraryMap 
-                    itinerary={itinerary} 
-                    selectedStopId={selectedStopId}
-                    onStopSelect={(stop) => setSelectedStopId(stop.placeId)}
-                  />
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Click on markers to see stop details. To reserve transport, accommodation and activities, use the paid tier.
-                </p>
-              </div>
-
-              <div className="hidden lg:block">
-                <ScrollArea className="h-[calc(100vh-240px)]">
-                  <div className="space-y-4 pr-2">
-                    {itinerary.days.map((day) => (
-                      <Card key={day.dayIndex}>
-                        <CardHeader className="py-3">
-                          <CardTitle className="text-sm">
-                            Day {day.dayIndex} · {day.date}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 pt-0">
-                          {day.stops.map((stop) => (
-                            <div
-                              key={stop.placeId}
-                              className={cn(
-                                "flex items-start gap-2 rounded-md border p-2 text-sm cursor-pointer transition-colors hover:bg-muted/50",
-                                selectedStopId === stop.placeId && "bg-primary/10 border-primary"
-                              )}
-                              onClick={() => setSelectedStopId(stop.placeId)}
-                            >
-                              <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                              <div>
-                                <p className="font-medium">{stop.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {STOP_TYPE_LABELS[stop.type] ?? stop.type}
-                                  {stop.price != null && ` · ~$${stop.price}`}
-                                  {stop.duration != null && ` · ${stop.duration} min`}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="timeline" className="mt-0">
-            <div className="mx-auto max-w-4xl">
-              <ItineraryTimeline 
-                itinerary={itinerary}
-                selectedStopId={selectedStopId}
-                onStopSelect={setSelectedStopId}
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
+        </div>
 
         <div className="mt-6 lg:hidden">
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -259,8 +222,8 @@ export default function ItineraryPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-background p-4">
-          <div className="mx-auto max-w-7xl">
-            <LoadingGenie message="Loading your itinerary..." size="lg" />
+          <div className="mx-auto max-w-6xl space-y-4">
+            <LoadingGenie message="Loading your itinerary..." />
           </div>
         </div>
       }

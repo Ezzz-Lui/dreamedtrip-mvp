@@ -130,6 +130,12 @@
 .mapboxgl-popup-content .dt-popup-meta {
   @apply text-muted-foreground text-xs mt-2 flex gap-3;
 }
+.mapboxgl-popup-content .dt-popup-time {
+  @apply text-muted-foreground text-xs mt-1;
+}
+.mapboxgl-popup-content .dt-popup-desc {
+  @apply text-muted-foreground text-xs mt-2 leading-relaxed max-w-[240px];
+}
 .mapboxgl-popup-close-button {
   @apply text-muted-foreground hover:text-foreground text-lg leading-none p-1.5;
 }

@@ -103,3 +103,9 @@ export function getItineraryFromStorage(): Itinerary | null {
     return null;
   }
 }
+
+/** Persist edited itinerary to localStorage so map and list stay in sync. */
+export function saveItineraryToStorage(itinerary: Itinerary): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(ITINERARY_STORAGE_KEY, JSON.stringify(itinerary));
+}

@@ -4,13 +4,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const protectedPaths = ["/dashboard", "/book"];
+// /book is public so users can see review and login/signup with trip summary; payment requires auth
+const protectedPaths = ["/dashboard"];
 
 function isProtectedPath(pathname: string): boolean {
   return protectedPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const pendingCookies: { name: string; value: string; options?: object }[] = [];
 

@@ -1,5 +1,12 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment variables
+
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` – Supabase project (required for auth and data).
+- `SUPABASE_SERVICE_ROLE_KEY` – Used by the Vudy webhook to update booking status after payment (optional unless using payments).
+- `VUDY_API_KEY` – Vudy API key for creating payment requests (required for paid bookings).
+- `VUDY_API_BASE_URL` – Optional; defaults to `https://api.vudy.app`.
+
 ## Getting Started
 
 First, run the development server:

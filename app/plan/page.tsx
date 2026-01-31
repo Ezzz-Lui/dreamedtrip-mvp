@@ -43,6 +43,7 @@ import {
   PartyIllustration,
   InterestsIllustration,
 } from "@/components/illustrations/StepIllustrations";
+import { LoadingGenie } from "@/components/ui/loading-genie";
 
 const STEPS = 5;
 const STEP_LABELS: Record<number, string> = {
@@ -459,7 +460,12 @@ export default function PlanPage() {
                 disabled={isSubmitting}
               >
                 {isSubmitting
-                  ? "Creating your itinerary…"
+                  ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">✨</span>
+                      Creating your itinerary…
+                    </span>
+                  )
                   : step === STEPS
                     ? "See my itinerary"
                     : "Next"}

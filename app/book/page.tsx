@@ -37,6 +37,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CheckCircle } from "lucide-react";
+import { LoadingGenie } from "@/components/ui/loading-genie";
+import {
+  ReviewIllustration,
+  DetailsIllustration,
+  SuccessIllustration,
+} from "@/components/illustrations/BookingIllustrations";
 
 const STOP_TYPE_LABELS: Record<string, string> = {
   hotel: "Hotel",
@@ -129,24 +135,25 @@ function BookPageContent() {
     return (
       <div className="min-h-screen bg-background p-4">
         <div className="mx-auto max-w-xl space-y-6 py-12">
+          <SuccessIllustration />
           <div className="flex flex-col items-center text-center">
-            <CheckCircle className="size-16 text-primary mb-4" />
-            <h1 className="text-2xl font-semibold">Booking received</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-3xl font-bold">Booking Confirmed!</h1>
+            <p className="text-muted-foreground mt-3 text-lg">
               {bookingResult.message ??
                 "We will send confirmation to your email shortly."}
             </p>
             {bookingResult.bookingId && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Reference: {bookingResult.bookingId}
-              </p>
+              <div className="mt-4 px-4 py-2 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground">Booking Reference</p>
+                <p className="text-lg font-mono font-semibold">{bookingResult.bookingId}</p>
+              </div>
             )}
           </div>
-          <div className="flex justify-center gap-2">
-            <Button asChild>
+          <div className="flex justify-center gap-2 pt-4">
+            <Button size="lg" asChild>
               <Link href="/">Back to home</Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button size="lg" variant="outline" asChild>
               <Link href="/itinerary">View itinerary</Link>
             </Button>
           </div>
@@ -195,6 +202,7 @@ function BookPageContent() {
 
         {step === 1 && (
           <Card>
+            <ReviewIllustration />
             <CardHeader>
               <CardTitle className="text-base">Itinerary summary</CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -237,6 +245,7 @@ function BookPageContent() {
 
         {step === 2 && (
           <Card>
+            <DetailsIllustration />
             <CardHeader>
               <CardTitle className="text-base">Your details</CardTitle>
             </CardHeader>
@@ -336,8 +345,7 @@ function BookPageSkeleton() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="mx-auto max-w-2xl">
-        <Skeleton className="h-8 w-48 mb-6" />
-        <Skeleton className="h-64 w-full" />
+        <LoadingGenie message="Preparing your booking..." />
       </div>
     </div>
   );

@@ -50,9 +50,9 @@ function ItineraryPageContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-4">
-        <div className="mx-auto max-w-6xl space-y-4">
+        <div className="mx-auto max-w-7xl space-y-4">
           <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-[400px] w-full rounded-lg" />
+          <Skeleton className="h-[500px] sm:h-[600px] w-full rounded-lg" />
           <div className="grid gap-4 md:grid-cols-2">
             <Skeleton className="h-32" />
             <Skeleton className="h-32" />
@@ -77,7 +77,7 @@ function ItineraryPageContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -105,9 +105,9 @@ function ItineraryPageContent() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div className="h-[400px] w-full overflow-hidden rounded-lg border">
+        <div className="grid gap-6 lg:grid-cols-4">
+          <div className="lg:col-span-3">
+            <div className="h-[500px] sm:h-[600px] w-full overflow-hidden rounded-lg border shadow-lg">
               <ItineraryMap itinerary={itinerary} />
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -227,9 +227,9 @@ export default function ItineraryPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-background p-4">
-          <div className="mx-auto max-w-6xl space-y-4">
+          <div className="mx-auto max-w-7xl space-y-4">
             <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-[400px] w-full rounded-lg" />
+            <Skeleton className="h-[500px] sm:h-[600px] w-full rounded-lg" />
           </div>
         </div>
       }

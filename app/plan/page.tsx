@@ -36,6 +36,13 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import {
+  CountryIllustration,
+  DestinationIllustration,
+  BudgetIllustration,
+  PartyIllustration,
+  InterestsIllustration,
+} from "@/components/illustrations/StepIllustrations";
 
 const STEPS = 5;
 const STEP_LABELS: Record<number, string> = {
@@ -179,6 +186,7 @@ export default function PlanPage() {
           >
             {step === 1 && (
               <div className="space-y-6 animate-in fade-in duration-200">
+                <CountryIllustration />
                 <FormField
                   control={form.control}
                   name="country"
@@ -221,6 +229,7 @@ export default function PlanPage() {
 
             {step === 2 && (
               <div className="space-y-6 animate-in fade-in duration-200">
+                <DestinationIllustration />
                 <FormField
                   control={form.control}
                   name="destinationType"
@@ -263,6 +272,7 @@ export default function PlanPage() {
 
             {step === 3 && (
               <div className="space-y-6 animate-in fade-in duration-200">
+                <BudgetIllustration />
                 <FormField
                   control={form.control}
                   name="days"
@@ -317,6 +327,7 @@ export default function PlanPage() {
 
             {step === 4 && (
               <div className="space-y-6 animate-in fade-in duration-200">
+                <PartyIllustration />
                 <FormField
                   control={form.control}
                   name="party"
@@ -386,6 +397,7 @@ export default function PlanPage() {
 
             {step === 5 && (
               <div className="space-y-6 animate-in fade-in duration-200">
+                <InterestsIllustration />
                 <FormField
                   control={form.control}
                   name="interests"

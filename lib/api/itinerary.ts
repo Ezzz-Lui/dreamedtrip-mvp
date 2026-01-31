@@ -12,19 +12,34 @@ const ITINERARY_STORAGE_KEY = "dreamedtrip_itinerary";
 export async function getItineraryFromProfile(
   profile: TravelerProfile
 ): Promise<Itinerary> {
+  // Prefer AI-generated itinerary (real destinations) when API key is set
+  try {
+    const res = await apiFetch<{ itinerary: Itinerary }>("/itinerary/generate", {
+      method: "POST",
+      body: JSON.stringify(profile),
+    });
+    if (res?.itinerary?.days?.length) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(ITINERARY_STORAGE_KEY, JSON.stringify(res.itinerary));
+      }
+      return res.itinerary as Itinerary;
+    }
+  } catch {
+    // Fallback to server mock or client mock
+  }
   try {
     const res = await apiFetch<{ itinerary: Itinerary }>("/itinerary", {
       method: "POST",
       body: JSON.stringify(profile),
     });
-    if (res.itinerary) {
+    if (res?.itinerary) {
       if (typeof window !== "undefined") {
         localStorage.setItem(ITINERARY_STORAGE_KEY, JSON.stringify(res.itinerary));
       }
       return res.itinerary;
     }
   } catch {
-    // Fallback to mock
+    // Fallback to client mock
   }
   const mock = buildMockItinerary(profile);
   if (typeof window !== "undefined") {

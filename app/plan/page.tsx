@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { travelerProfileSchema, type TravelerProfileSchema } from "@/lib/schemas/traveler";
 import {
+  CENTRAL_AMERICA_COUNTRIES,
   DESTINATION_TYPES,
   BUDGET_LEVELS,
   TRAVEL_PARTY,
@@ -36,12 +37,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-const STEPS = 4;
+const STEPS = 5;
 const STEP_LABELS: Record<number, string> = {
-  1: "Destination",
-  2: "Duration & budget",
-  3: "Who & pace",
-  4: "Interests",
+  1: "Country",
+  2: "Destination",
+  3: "Duration & budget",
+  4: "Who & pace",
+  5: "Interests",
+};
+
+const COUNTRY_LABELS: Record<string, string> = {
+  costa_rica: "Costa Rica",
+  guatemala: "Guatemala",
+  panama: "Panamá",
+  belize: "Belice",
+  honduras: "Honduras",
+  el_salvador: "El Salvador",
+  nicaragua: "Nicaragua",
 };
 
 const DESTINATION_LABELS: Record<string, string> = {
@@ -82,6 +94,7 @@ const INTEREST_LABELS: Record<string, string> = {
 };
 
 const defaultValues: TravelerProfileSchema = {
+  country: "costa_rica",
   destinationType: "city",
   days: 3,
   budget: "mid",
@@ -110,12 +123,14 @@ export default function PlanPage() {
   const onNext = async () => {
     const fields: (keyof TravelerProfileSchema)[] =
       step === 1
-        ? ["destinationType"]
+        ? ["country"]
         : step === 2
-          ? ["days", "budget"]
+          ? ["destinationType"]
           : step === 3
-            ? ["party", "pace"]
-            : ["interests"];
+            ? ["days", "budget"]
+            : step === 4
+              ? ["party", "pace"]
+              : ["interests"];
     const ok = await form.trigger(fields);
     if (!ok) return;
     if (step < STEPS) {
@@ -166,6 +181,48 @@ export default function PlanPage() {
               <div className="space-y-6 animate-in fade-in duration-200">
                 <FormField
                   control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Which Central American country do you want to visit?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+                        >
+                          {CENTRAL_AMERICA_COUNTRIES.map((value) => (
+                            <div
+                              key={value}
+                              className={cn(
+                                "flex items-center space-x-2 rounded-lg border p-4 transition-colors",
+                                field.value === value
+                                  ? "border-primary bg-primary/5"
+                                  : "border-input hover:bg-muted/50"
+                              )}
+                            >
+                              <RadioGroupItem value={value} id={value} />
+                              <FormLabel
+                                htmlFor={value}
+                                className="cursor-pointer font-normal"
+                              >
+                                {COUNTRY_LABELS[value]}
+                              </FormLabel>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <FormField
+                  control={form.control}
                   name="destinationType"
                   render={({ field }) => (
                     <FormItem>
@@ -204,7 +261,7 @@ export default function PlanPage() {
               </div>
             )}
 
-            {step === 2 && (
+            {step === 3 && (
               <div className="space-y-6 animate-in fade-in duration-200">
                 <FormField
                   control={form.control}
@@ -258,7 +315,7 @@ export default function PlanPage() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-6 animate-in fade-in duration-200">
                 <FormField
                   control={form.control}
@@ -327,7 +384,7 @@ export default function PlanPage() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-6 animate-in fade-in duration-200">
                 <FormField
                   control={form.control}
@@ -390,7 +447,7 @@ export default function PlanPage() {
                 disabled={isSubmitting}
               >
                 {isSubmitting
-                  ? "Loading…"
+                  ? "Creating your itinerary…"
                   : step === STEPS
                     ? "See my itinerary"
                     : "Next"}

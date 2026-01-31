@@ -12,7 +12,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as TravelerProfile;
-    if (!body.destinationType || !body.days || !body.budget || !body.party || !body.pace || !Array.isArray(body.interests)) {
+    if (!body.country || !body.destinationType || !body.days || !body.budget || !body.party || !body.pace || !Array.isArray(body.interests)) {
       return NextResponse.json(
         { message: "Invalid profile" },
         { status: 400 }

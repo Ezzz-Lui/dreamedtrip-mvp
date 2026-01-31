@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  CENTRAL_AMERICA_COUNTRIES,
   DESTINATION_TYPES,
   BUDGET_LEVELS,
   TRAVEL_PARTY,
@@ -8,6 +9,7 @@ import {
 } from "@/lib/types/traveler";
 
 export const travelerProfileSchema = z.object({
+  country: z.enum(CENTRAL_AMERICA_COUNTRIES),
   destinationType: z.enum(DESTINATION_TYPES),
   days: z.number().min(1).max(14),
   budget: z.enum(BUDGET_LEVELS),

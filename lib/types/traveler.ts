@@ -2,6 +2,18 @@
  * Traveler profile types for DreamedTrip questionnaire and API.
  */
 
+/** Central America countries for real destination focus */
+export const CENTRAL_AMERICA_COUNTRIES = [
+  "costa_rica",
+  "guatemala",
+  "panama",
+  "belize",
+  "honduras",
+  "el_salvador",
+  "nicaragua",
+] as const;
+export type CentralAmericaCountry = (typeof CENTRAL_AMERICA_COUNTRIES)[number];
+
 export const DESTINATION_TYPES = [
   "city",
   "nature",
@@ -32,6 +44,7 @@ export const INTERESTS = [
 export type Interest = (typeof INTERESTS)[number];
 
 export interface TravelerProfile {
+  country: CentralAmericaCountry;
   destinationType: DestinationType;
   days: number;
   budget: BudgetLevel;

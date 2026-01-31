@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Map, Route, CheckCircle2, MapPin, Star } from "lucide-react";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { HeroIllustration } from "@/components/illustrations/HeroIllustration";
+import { GenieMascot } from "@/components/illustrations/GenieMascot";
 
 // One per country, starting with El Salvador: SV → GT → HN → NI → CR → PA (repeat)
 const featuredDestinations = [
@@ -38,27 +39,30 @@ export default function Home() {
           </div>
           
           {/* Content */}
-          <div className="relative px-4 py-20 sm:py-28">
-            <div className="mx-auto max-w-3xl text-center">
-              {/* Title with better contrast */}
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-sm">
+          <div className="relative px-4 pt-12 pb-20 sm:pt-16 sm:pb-28">
+            <div className="mx-auto max-w-4xl text-center">
+              {/* Genie Mascot */}
+              <div className="flex justify-center mb-6">
+                <GenieMascot className="w-24 h-24 sm:w-32 sm:h-32" />
+              </div>
+              
+              {/* Title with better contrast - positioned higher */}
+              <h1 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl text-foreground drop-shadow-lg">
                 Your ideal trip, one questionnaire away
               </h1>
               
-              {/* Description with background for better readability */}
-              <div className="mt-6 inline-block">
-                <p className="text-lg sm:text-xl px-6 py-4 rounded-2xl bg-background/80 backdrop-blur-sm shadow-lg border">
-                  DreamedTrip helps you discover the perfect itinerary across Central America. 
-                  Answer a few questions, get a tailored route with places, prices and times—then
-                  reserve everything in one place when you're ready.
-                </p>
-              </div>
+              {/* Description with strong text shadow for readability */}
+              <p className="mt-8 text-xl sm:text-2xl font-medium text-foreground [text-shadow:_0_2px_8px_rgb(255_255_255_/_80%)] dark:[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)] max-w-3xl mx-auto leading-relaxed">
+                DreamedTrip helps you discover the perfect itinerary across Central America. 
+                Answer a few questions, get a tailored route with places, prices and times—then
+                reserve everything in one place when you're ready.
+              </p>
               
-              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button size="lg" asChild className="min-w-[200px] shadow-lg">
+              <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Button size="lg" asChild className="min-w-[200px] shadow-xl text-base">
                   <Link href="/plan">Plan my trip</Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="shadow-lg bg-background/80 backdrop-blur-sm">
+                <Button size="lg" variant="outline" asChild className="shadow-xl bg-background/90 backdrop-blur-sm text-base">
                   <Link href="#how-it-works">See how it works</Link>
                 </Button>
               </div>
@@ -79,10 +83,12 @@ export default function Home() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {featuredDestinations.map((destination) => (
-              <Card key={destination.name} className="group overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={destination.name} className="group overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer">
                 <CardContent className="p-0">
-                  <div className="aspect-[4/3] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-6xl">
-                    {destination.image}
+                  <div className="aspect-[4/3] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-6xl group-hover:from-primary/30 group-hover:to-primary/10 transition-all duration-300">
+                    <span className="group-hover:scale-110 transition-transform duration-300">
+                      {destination.image}
+                    </span>
                   </div>
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
@@ -95,7 +101,7 @@ export default function Home() {
                           {destination.country}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="shrink-0">
+                      <Badge variant="secondary" className="shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         <Star className="size-3 mr-1 fill-current" />
                         {destination.rating}
                       </Badge>
@@ -105,14 +111,14 @@ export default function Home() {
                     </p>
                     <div className="flex flex-wrap gap-1 mb-3">
                       {destination.highlights.slice(0, 2).map((highlight) => (
-                        <Badge key={highlight} variant="outline" className="text-xs">
+                        <Badge key={highlight} variant="outline" className="text-xs group-hover:border-primary/50 transition-colors">
                           {highlight}
                         </Badge>
                       ))}
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>{destination.reviews.toLocaleString()} reviews</span>
-                      <Button size="sm" variant="ghost" asChild className="h-8 text-xs">
+                      <Button size="sm" variant="ghost" asChild className="h-8 text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         <Link href="/plan">Book now</Link>
                       </Button>
                     </div>

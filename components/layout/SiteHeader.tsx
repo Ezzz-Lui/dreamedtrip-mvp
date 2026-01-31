@@ -7,6 +7,8 @@ import { getItineraryFromStorage } from "@/lib/api/itinerary";
 import { Map, Calendar, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { GenieMascot } from "@/components/illustrations/GenieMascot";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -26,10 +28,12 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold tracking-tight"
+          className="flex items-center gap-2 font-semibold tracking-tight group"
         >
-          <Map className="size-5 text-primary" />
-          <span>DreamedTrip</span>
+          <div className="relative">
+            <GenieMascot className="w-10 h-10 group-hover:scale-110 transition-transform" />
+          </div>
+          <span className="text-lg">DreamedTrip</span>
         </Link>
         <nav className="flex items-center gap-1">
           {nav.map((item) => (
@@ -61,6 +65,7 @@ export function SiteHeader() {
               Log in
             </Link>
           </Button>
+          <ThemeToggle />
         </nav>
       </div>
     </header>
